@@ -5,7 +5,7 @@ import scala.annotation.tailrec
 object ArrayProblems {
   def main(args: Array[String]): Unit = {
     //val input = Array(1,2,3,4,5,6)
-    //rotate_v2(Array(1,2,3,4,5,6), 100)
+    //rotate_v3(Array(1,2,3,4,5,6), 100)
     //input.foreach(print)
     testFindLHS()
   }
@@ -38,6 +38,19 @@ object ArrayProblems {
     reverse(normalizeK, nums.length - 1)
   }
 
+  def rotate_v3(nums: Array[Int], k: Int): Unit = {
+    // see rotate_v1 above
+    // for loops in scala are syntactic sugar for foreach so it is easy to switch between them
+    val result = new Array[Int](nums.length)
+    for(i <- nums.indices) {
+      val offset = (i + k) % nums.length
+      result(offset) = nums(i)
+    }
+    for(i <- result.indices) {
+      nums(i) = result(i)
+    }
+  }
+
   /*
   Longest Harmonious Subsequence
   https://leetcode.com/problems/longest-harmonious-subsequence/description/?envType=problem-list-v2&envId=sliding-window
@@ -49,7 +62,7 @@ object ArrayProblems {
   Explanation: The longest harmonious subsequence is [3,2,2,2,3].
    */
   def testFindLHS(): Unit = {
-    println(findLHS_v3(Array(1,3,2,2,5,2,3,7)))
+    println(findLHS_v4(Array(1,3,2,2,5,2,3,7)))
   }
   def findLHS_v1(nums: Array[Int]): Int = {
     val numsSorted = nums.sorted
@@ -92,5 +105,18 @@ object ArrayProblems {
       }
     }
     helper(0,1,0)
+  }
+
+  def findLHS_v4(nums: Array[Int]): Int = {
+    // See findLHS_v2
+    // Any foldLeft can be converted to a for loop by using a mutable variable in place of the accumulator and doing a regular interation over the range/collection
+    val mapOfNums: scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.Map.empty[Int, Int]
+    for(x <- nums) {
+      mapOfNums.put(x, mapOfNums.getOrElse(x, 0) + 1)
+    }
+    (for(entry <- mapOfNums) yield { // for comprehension are just syntactic sugar for maps and flatMap so you can easily convert between them
+      if (mapOfNums.contains(entry._1 + 1)) entry._2 + mapOfNums(entry._1 + 1)
+      else 0
+    }).max
   }
 }
