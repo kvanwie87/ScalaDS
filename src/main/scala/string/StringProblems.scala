@@ -11,8 +11,8 @@ object StringProblems {
     //testCompareVersionNumbers()
     //testReorganizeString()
     //println("hello world".groupBy(identity).map(x => (x._1, x._2.length)))
-    //testIsAnagram()
-    testMultiple()
+    testIsAnagram()
+    //testMultiple()
   }
   def stringAPIs(): Unit = {
     val hello = "hello"
@@ -191,8 +191,8 @@ object StringProblems {
   }
 
   def testIsAnagram(): Unit = {
-    assert(isAnagram("desserts","stressed"))
-    assert(!isAnagram("Scala","Haskell"))
+    assert(isAnagramV3("desserts","stressed"))
+    assert(!isAnagramV3("Scala","Haskell"))
   }
 
   def isAnagram(str1: String, str2: String): Boolean = {
@@ -211,6 +211,48 @@ object StringProblems {
       }
     }
     helper(str2, str1Counts)
+  }
+
+  def isAnagramV2(s: String, t: String): Boolean = {
+    if(s.length != t.length) return false
+    val sCounts = s.foldLeft(IndexedSeq.fill(256)(0))((acc, curr) => acc.updated(curr, acc(curr) + 1))
+    @tailrec
+    def helper(remaining: String, counts: IndexedSeq[Int]): Boolean = {
+      if (remaining.isEmpty) true
+      else {
+        val newCounts = counts.updated(remaining.head, counts(remaining.head) - 1)
+        if(newCounts(remaining.head) < 0) false
+        else helper(remaining.tail, newCounts)
+      }
+    }
+
+    helper(t, sCounts)
+  }
+
+  def isAnagramV3(s: String, t: String): Boolean = {
+    if(s.length != t.length) return false
+    val sCounts = new Array[Int](256)
+    for(c <- s) sCounts(c) += 1
+    var result = true
+    var i = 0
+    while(result && i < t.length) {
+      sCounts(t(i)) -= 1
+      if(sCounts(t(i)) < 0) result = false
+      i += 1
+    }
+    result
+  }
+
+  def isAnagramV4(s: String, t: String): Boolean = {
+    if (s.length != t.length) return false
+    val sCounts = new Array[Int](256)
+    for (c <- s) sCounts(c) += 1
+    var result = true
+    for(c <- t.takeWhile(_ => result)) { // Logically the same as isAnagramV3. I just think a takeWhile to shortcut the generator on a for is less verbose than a regular while loop at times
+      sCounts(c) -= 1
+      if (sCounts(c) < 0) result = false
+    }
+    result
   }
 
   def testGenerateAllValidParentheses(): Unit = {
