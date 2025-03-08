@@ -1,5 +1,7 @@
 package binarysearch
 
+import scala.annotation.tailrec
+
 object BinarySearchProblems {
   def main(args: Array[String]): Unit = {
     testLastZero()
@@ -33,5 +35,46 @@ object BinarySearchProblems {
       else low = mid + 1              // Otherwise last zero is on the right
     }
     -1
+  }
+
+  // https://leetcode.com/problems/binary-search/submissions/1546302190/
+  def search(nums: Array[Int], target: Int): Int = {
+    @tailrec
+    def helper(left: Int, right: Int): Int = {
+      val mid = (left + right) / 2
+      if (right < left) -1
+      else if (target == nums(mid)) mid
+      else if (target > nums(mid)) helper(mid + 1, right)
+      else helper(left, mid - 1)
+    }
+
+    helper(0, nums.length - 1)
+  }
+
+  def search2(nums: Array[Int], target: Int): Int = {
+    val result = nums.zipWithIndex.foldLeft((-1, 0, nums.length - 1)) {
+      case ((index, left, right), (num, idx)) =>
+        if (right < left) (index, left, right)
+        else {
+          val mid = (left + right) / 2
+          if (target == nums(mid)) (mid, left, right)
+          else if (target > nums(mid)) (index, mid + 1, right)
+          else (index, left, mid - 1)
+        }
+    }
+    result._1
+  }
+
+  def search3(nums: Array[Int], target: Int): Int = {
+    Iterator.unfold((-1, 0, nums.length - 1))(state => {
+      val (index, left, right) = state
+      if (right < left) None
+      else {
+        val mid = (left + right) / 2
+        if (target == nums(mid)) Some(mid, (mid, left, right))
+        else if (target > nums(mid)) Some(-1, (index, mid + 1, right))
+        else Some(-1, (index, left, mid - 1))
+      }
+    }).toList.last
   }
 }
