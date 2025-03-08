@@ -68,7 +68,7 @@ object BinarySearchProblems {
   def search3(nums: Array[Int], target: Int): Int = {
     Iterator.unfold((-1, 0, nums.length - 1))(state => {
       val (index, left, right) = state
-      if (right < left) None
+      if (index != -1 || right < left) None
       else {
         val mid = (left + right) / 2
         if (target == nums(mid)) Some(mid, (mid, left, right))
